@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048</title>
+    <style>
+body { 
+    text-align: center;
+}
+.header {
+    justify-content: center;
+    display: flex;
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+}
+.Score {
+    margin-top: 20px;
+    padding-left: 15px;
+}
+button {
+    width: 60px;
+    height: 60px;
+    margin-top: 5px;
+    font-weight: bold;
+}
+.Board {
+    width: 480px;
+    height: 480px;
+    background-color: #bbada0;
+    border: #776e65 solid 5px;
+    border-radius: 5px;
+    margin: auto;
+
+    display: grid;
+    grid-template-columns: repeat(4, 120px);
+    grid-template-rows: repeat(4,120px);
+    gap: 0;
+}
+.tile {
+    
+    display: flex;
+    justify-content: center; /* centers text horizontally */
+    align-items: center;     /* centers text vertically */
+    
+    border: #776e65 solid 5px;
+    font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+    font-size: 60px;
+    width: 110px;
+    height: 110px;
+}
+h1 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 30px;
+}
+
+
+/* Tiles 
+    | 
+    V
+*/
+
+.x2 {
+    background-color: #eee4da;
+    color: #727371;
+}
+
+.x4 {
+    background-color: #ece0ca;
+    color: #727371;
+}
+
+.x8 {
+    background-color: #f4b17a;
+    color: white;
+}
+
+.x16{
+    background-color: #f59575;
+    color: white;
+}
+
+.x32{
+    background-color: #f57c5f;
+    color: white;
+}
+
+.x64{
+    background-color: #f65d3b;
+    color: white;
+}
+
+.x128{
+    background-color: #edce71;
+    color: white;
+}
+
+.x256{
+    background-color: #edcc63;
+    color: white;
+}
+
+.x512{
+    background-color: #edc651;
+    color: white;
+}
+
+.x1024{
+    background-color: #eec744;
+    color: white;
+}
+
+.x2048{
+    background-color: #ecc230;
+    color: white;
+}
+
+.x4096 {
+    background-color: #fe3d3d;
+    color: white;
+}
+
+.x8192 {
+    background-color: #ff2020;
+    color: white;
+}
+</style>
+</head>
+<body>
+    <div class="header">
+        <button id="restart">restart
+                              game
+        </button>
+        <h1 class="Score">Score:</h1>
+    </div>
+    <div class="Board"></div>
+    <script>
+Board = [
+    [0,0,0,0],
+    [0,0,0,0],
+    [0,0,0,0],
+    [0,0,0,0]
+]
+function CreateCube(column, row, value) {
+    let add;
+    if (document.getElementsByClassName(`${row}/${column}`).length === 0) {
+        add = document.createElement('div');
+    } else {
+        add = document.getElementsByClassName(`${row}/${column}`)[0];
+    }
+    add.className = '';
+    add.classList.add('tile');
+    add.style.gridRow = row;
+    add.style.gridColumn = column;
+    add.textContent = value;
+    if (value < 9000 && value != 0) {
+        add.classList.add(`x${value}`);
+    } else if (value != 0){
+        add.classList.add('x8192');
+    }
+    add.classList.add(`${row}/${column}`);
+    document.querySelector('.Board').appendChild(add);
+}
+function CreateBoard() {
+    for (i=1;i<5;i++) {
+        for (j=1;j<5;j++) {
+            if (Board[j-1][i-1] === 0) {
+                CreateCube(i,j,'');
+            }
+            else {
+                CreateCube(i,j,Board[j-1][i-1]);
+            }
+        }
+    }
+}
+function Move(direction) {
+    for (i=0;i<2;i++) {
+        for (r=3; r>=0; r--) {
+            for (c=3; c>=0; c--) {
+                if (direction === "a") {
+                    if (Board[r][c-1] === 0 && c != 0) {
+                        Board[r][c-1] = Board[r][c]
+                        Board[r][c] = 0
+                    }}
+                else if (direction === "d" && c != 0) {
+                    if (Board[r][c] === 0) {
+                        Board[r][c] = Board[r][c-1]
+                        Board[r][c-1] = 0
+                    }}
+                else if (direction === "w" && r != 0) {
+                    if (Board[r-1][c] === 0) {
+                        Board[r-1][c] = Board[r][c]
+                        Board[r][c] = 0
+                    }
+                }
+                else if (direction === "s" && r != 0) {
+                    if (Board[r][c] === 0) {
+                        Board[r][c] = Board[r-1][c]
+                        Board[r-1][c] = 0
+                    }
+                }
+            }
+        }
+    }
+}
+function Merge(direction) {
+    for (r = 0; r < 4; r++) {
+        for (c = 0; c < 4; c++) {
+            if (direction === 'a') {
+                if (Board[r][c] === Board[r][c-1] && c != 0) {
+                    Board[r][c-1] *= 2
+                    Board[r][c] = 0
+                }}
+            else if (direction === 'd') {
+                if (Board[r][c] === Board[r][c+1] && c != 3) {
+                    Board[r][c+1] *= 2
+                    Board[r][c] = 0
+                }}
+            else if (direction === 'w' && r != 0) {
+                if (Board[r][c] === Board[r-1][c]) {
+                    Board[r-1][c] *= 2
+                    Board[r][c] = 0
+                }}
+            else if (direction === 's' && r != 3) {
+                if (Board[r][c] === Board[r+1][c]) {
+                    Board[r+1][c] *= 2
+                    Board[r][c] = 0
+                }}
+        }
+    }
+}
+function AddRanTile() {
+    opentiles = []
+    for (i=0;i<4;i++) {
+        for (j=0;j<4;j++) {
+            if (Board[i][j] === 0) {
+                opentiles.push([i,j])
+            }
+        }
+    }
+    if (opentiles[0] != undefined) {
+        adding = Math.round(Math.random()*(opentiles.length-1))
+        Board[opentiles[adding][0]][opentiles[adding][1]] = 2
+        if (Math.random()<0.1) {
+            Board[opentiles[adding][0]][opentiles[adding][1]] = 4
+        }
+    }
+}
+function isDead() {
+    for (i=0;i<4;i++) {
+        for (j=0;j<4;j++) {
+            if (i!=0) { if (Board[i][j]===Board[i-1][j]) {return false}}
+            if (j!=0) { if (Board[i][j]===Board[i][j-1]) {return false}}
+            if (i!=3) { if (Board[i][j]===Board[i+1][j]) {return false}}
+            if (j!=3) { if (Board[i][j]===Board[i][j+1]) {return false}}
+            if (Board[i][j] === 0) {return false}
+        }
+    }
+    return true;
+}
+function Score() {
+    let RunningScore = 0;
+    for (i=0;i<4;i++) {
+        for (j=0;j<4;j++) {
+            RunningScore += Board[i][j]
+        }
+    }
+    return(RunningScore)
+}
+AddRanTile()
+CreateBoard()
+window.alert("press w,a,s,d keys to move tiles")
+document.addEventListener("keydown", event => {
+    if (event === 'w','a','s','d') {
+        Move(event.key)
+        Merge(event.key)
+        Move(event.key)
+        AddRanTile()
+        CreateBoard()
+        document.getElementsByClassName("Score")[0].textContent = `Score: ${Score()}`
+        if (isDead()) {window.alert(`You have died, final score: ${Score()}`)}
+    }
+})
+document.getElementById('restart').onclick = function() {
+    Board = [
+        [0,0,0,0],
+        [0,0,0,0],
+        [0,0,0,0],
+        [0,0,0,0]
+    ]
+    AddRanTile()
+    CreateBoard()
+}
+</script>
+</body>
+</html>
